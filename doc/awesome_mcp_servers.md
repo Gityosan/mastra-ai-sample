@@ -25,5 +25,9 @@ https://github.com/nspady/google-calendar-mcp
 https://github.com/osomai/servicenow-mcp
 
 
+## n8n-nodes-mcp
+https://github.com/nerding-io/n8n-nodes-mcp
+
+
 ## j-moshi(音声生成)
 https://github.com/nu-dialogue/j-moshi

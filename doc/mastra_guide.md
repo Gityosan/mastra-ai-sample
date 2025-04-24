@@ -99,7 +99,7 @@ workflow.run({ input: 'データを処理してください' });
 
 #### 使い方例
 ```js
-import { MDocument } from '@mastra/core';
+import { MDocument, VectorStore, RagWorkflow } from '@mastra/core';
 
 // 1. ドキュメントを読み込み
 const doc = MDocument.fromText('大量のテキストデータ...');
@@ -112,9 +112,34 @@ const chunks = await doc.chunk({
 });
 
 // 3. 埋め込み生成（OpenAIなどのプロバイダーを利用）
-// 詳細は公式ドキュメント参照
+const embeddings = await Promise.all(
+  chunks.map(async (chunk) => await chunk.embed({ provider: 'openai' }))
+);
 
-// 4. ベクトルDBやRAGワークフローと連携して検索・回答生成
+// 4. ベクトルDB（VectorStore）に登録
+const store = new VectorStore();
+await store.addMany(embeddings.map((embedding, i) => ({
+  id: `chunk-${i}`,
+  vector: embedding,
+  metadata: { text: chunks[i].text },
+})));
+
+// 5. クエリに対して類似検索
+const query = 'AIの活用方法について教えて';
+const queryEmbedding = await MDocument.fromText(query).embed({ provider: 'openai' });
+const results = await store.similaritySearch(queryEmbedding, { topK: 3 });
+
+// 6. RAGワークフローでAI応答生成
+const rag = new RagWorkflow({
+  vectorStore: store,
+  llmProvider: 'openai',
+});
+const answer = await rag.answer({
+  query,
+  retrieved: results.map(r => r.metadata.text),
+});
+
+console.log(answer);
 ```
 
 > 詳細な設定やプロバイダーごとの使い方は[公式RAGドキュメント](https://docs.mastra.ai/rag/overview)を参照してください。
