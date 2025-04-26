@@ -1,5 +1,8 @@
 # Awesome MCP Servers
 
+## ModelContextProtocol
+https://github.com/modelcontextprotocol/servers
+
 ## AWS MCP
 https://github.com/awslabs/mcp
 
